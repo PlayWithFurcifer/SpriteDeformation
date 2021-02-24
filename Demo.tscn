@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Furcifer.png" type="Texture" id=1]
+[ext_resource path="res://Demo.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform vec2 deformation = vec2(0, 0);
+uniform float sideWaysDeformationFactor = 5.0;
+uniform float knockbackFactor = 0.4;
+
+void vertex() {
+	vec2 deformationStrength = abs(deformation);
+	float sideWaysDeformation = min(deformationStrength.x, deformationStrength.y);
+	float spriteWidth = abs(VERTEX.x);
+	if (sign(VERTEX.y) != sign(deformation.y)) {
+		VERTEX.x += sideWaysDeformation * sideWaysDeformationFactor * spriteWidth * sign(deformation.x);
+	}
+	vec2 scale = 1.0 - deformationStrength;
+	
+	VERTEX.x *= scale.x / scale.y;
+	VERTEX.y *= scale.y / scale.x;
+	VERTEX.xy += deformation * spriteWidth * knockbackFactor;
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/deformation = Vector2( 0, 0 )
+shader_param/sideWaysDeformationFactor = 5.0
+shader_param/knockbackFactor = 0.4
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2( 960, 540 )
+current = true
+
+[node name="Furcifer" type="Sprite" parent="."]
+material = SubResource( 2 )
+position = Vector2( 965.54, 484.189 )
+scale = Vector2( 6, 6 )
+texture = ExtResource( 1 )
+
+[node name="Tween" type="Tween" parent="."]
